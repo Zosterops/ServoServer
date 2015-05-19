@@ -7,10 +7,10 @@ class Servo:
     Represent a servo motor
     """
 
-    def __init__(self, gpio):
+    def __init__(self, gpio, dma):
         self.logger = logging.getLogger('Servo')
         self.logger.debug('__init__')
-        self.servo = PWM.Servo(pulse_incr_us=1)
+        self.servo = PWM.Servo(dma_channel=dma, pulse_incr_us=1)
         self.gpio = gpio
         self.frequency = 50 # 50hz frequency
         self.angle_0 = 250 # 250 us
@@ -35,13 +35,13 @@ class ServoManager:
     def __init__(self, gpios=None):
         self.__dict__ = self.__shared_state
         if gpios is not None:
-            self.servo_up_down = Servo(gpios[0])
-            self.servo_right_left = Servo(gpios[1])
+            self.servo_up_down = Servo(dma=gpios[0][0],gpio=gpios[0][1])
+            self.servo_right_left = Servo(dma=gpios[1][0],gpio=gpios[1][1])
 
     def move_up_down(self, angle):
         self.servo_up_down.move(angle)
 
-    def move_right_lef(self, angle):
+    def move_right_left(self, angle):
         self.servo_right_left.move(angle)
 
 

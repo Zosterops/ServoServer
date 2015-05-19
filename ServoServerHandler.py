@@ -35,9 +35,16 @@ class ServoServerHandler(SocketServer.BaseRequestHandler):
         execute the cmd
         """
         if cmd.has_key('type') and cmd['type'] == "movement":
-            angle = int(cmd['angle'])
-            servo_manager = ServoManager()
-            servo_manager.move_up_down(angle)
+            if cmd.has_key('x') and cmd.has_key('y'):
+                x = int(cmd['x'])
+                y = int(cmd['y'])
+                servo_manager = ServoManager()
+                servo_manager.move_up_down(x)
+                servo_manager.move_right_left(y)
+            else:
+                self.logger.debug('Movement packet doesn\'t have x and y values')
+        else:
+            self.logger.debug('Unknown packet : %s' % repr(cmd))
 
     def setup(self):
         self.logger.debug('setup')

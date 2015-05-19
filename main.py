@@ -12,6 +12,6 @@ args = parser.parse_args()
 
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
 
-servo_manager = ServoManager(gpios=(2,3)) # singleton
+servo_manager = ServoManager(gpios=[(0,2),(1,15)]) # singleton
 server = SocketServer.TCPServer(("0.0.0.0", args.port), ServoServerHandler)
 server.serve_forever()
