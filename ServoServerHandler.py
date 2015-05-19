@@ -2,6 +2,7 @@
 import json
 import logging
 import SocketServer
+from ServoManager import ServoManager
 
 class ServoServerHandler(SocketServer.BaseRequestHandler):
     """
@@ -29,6 +30,15 @@ class ServoServerHandler(SocketServer.BaseRequestHandler):
             char = self.request.recv(1)
         return data
 
+    def exec_cmd(self, cmd):
+        """
+        execute the cmd
+        """
+        if cmd.has_key('type') and cmd['type'] == "movement":
+            angle = int(cmd['angle'])
+            servo_manager = ServoManager()
+            servo_manager.move_up_down(angle)
+
     def setup(self):
         self.logger.debug('setup')
 
@@ -48,6 +58,8 @@ class ServoServerHandler(SocketServer.BaseRequestHandler):
             except:
                 self.logger.debug('unable to parse json data')
                 break
+
+            self.exec_cmd(cmd)
 
     def finish(self):
         self.logger.debug('finish')

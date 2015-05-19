@@ -30,19 +30,13 @@ class ServoManager:
     Used to manage the servos with GPIOs
     """
 
-    instance = None
+    __shared_state = {}
 
-    def __new__(cls, *args, **kwargs):
-        """
-        because it's a singleton
-        """
-        if cls.instance is None:
-            cls.instance = object.__new__(cls)
-        return cls.instance
-
-    def __init__(self):
-        self.servo_up_down = Servo()
-        self.servo_right_left = Servo()
+    def __init__(self, gpios=None):
+        self.__dict__ = self.__shared_state
+        if gpios is not None:
+            self.servo_up_down = Servo(gpios[0])
+            self.servo_right_left = Servo(gpios[1])
 
     def move_up_down(self, angle):
         self.servo_up_down.move(angle)
@@ -53,6 +47,6 @@ class ServoManager:
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
-    servo = Servo(17)
+    servo = Servo(2)
     while True:
         servo.move(input())
