@@ -1,6 +1,7 @@
 
 import json
 import logging
+from struct import unpack
 import SocketServer
 from ServoManager import ServoManager
 
@@ -20,14 +21,14 @@ class ServoServerHandler(SocketServer.BaseRequestHandler):
 
     def get_cmd_json(self):
         """
-        Takes char by char data into the buffer
-        Stop when ';' it's seen or when recv() returns 0
+        First reads the size of the data
+        Then reads the data of size size
         """
         data = ""
-        char = self.request.recv(1)
-        while char != ';' and len(char) != 0:
-            data += char
-            char = self.request.recv(1)
+        size = self.request.recv(2)
+        if len(size) == 2:
+            size = unpack('>H', size)[0]
+            data = self.request.recv(size)
         return data
 
     def exec_cmd(self, cmd):
