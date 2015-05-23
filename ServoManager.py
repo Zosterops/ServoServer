@@ -47,6 +47,6 @@ class ServoManager:
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
-    servo = Servo(2)
+    servo = Servo(2, 0)
     while True:
         servo.move(input())
