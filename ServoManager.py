@@ -20,12 +20,11 @@ class Servo:
         return (angle * self.angle_180) / 180
 
     def move(self, angle):
-        duty_cycle = self.get_duty_cycle(angle)
-        self.logger.debug('Servo %d : angle : %d, duty_cycle : %d' % (self.gpio, angle, duty_cycle))
-        self.servo.set_servo(self.gpio, duty_cycle)
+        self.logger.debug('Servo %d : angle : %d' % (self.gpio, angle))
+        self.servo.set_servo(self.gpio, self.get_duty_cycle(angle))
 
     def set_dutycycle(self, dutycyle):
-        self.logger.debug('Set duty cycle to : %d' % dutycyle)
+        self.logger.debug('Servo %d : duty_cycle : %d' % (self.gpio, dutycyle))
         self.servo.set_servo(self.gpio, dutycyle)
 
 class ServoManager:
@@ -52,4 +51,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
     servo = Servo(2, 0)
     while True:
-        servo.set_dutycycle(input())
+        servo.move(input())
