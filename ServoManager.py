@@ -17,10 +17,8 @@ class Servo:
         self.angle_90 = 2300 # 2300us
 
     def get_duty_cycle(self, angle):
-        cycle = angle * self.angle_90 / 90
-        if cycle < 0:
-            cycle = self.angle_90 + cycle
-        return cycle
+        angle += 90
+        return angle * self.angle_90 / 90
 
     def move(self, angle):
         self.logger.debug('Servo %d : angle : %d' % (self.gpio, angle))
