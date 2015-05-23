@@ -13,20 +13,23 @@ class Servo:
         self.servo = PWM.Servo(pulse_incr_us=1)
         self.gpio = gpio
         self.frequency = 50 # 50hz frequency
-        self.angle_0 = 250 # 250 us
-        self.angle_180 = 2300 # 2300us
+        self.angle_moins_90 = 250 # 250 us
+        self.angle_90 = 2300 # 2300us
 
     def get_duty_cycle(self, angle):
-        return (angle * self.angle_180) / 180
+        cycle = angle * self.angle_90 / 90
+        if cycle < 0:
+            cycle = self.angle_90 + cycle
+        return cycle
 
     def move(self, angle):
         self.logger.debug('Servo %d : angle : %d' % (self.gpio, angle))
-        if angle <= 0:
-            angle = 1
-            self.logger.debug('angle to low, set to 1')
-        elif angle > 180:
-            angle = 180
-            self.logger.debug('angle to high, set to 180')
+        if angle <= -90:
+            angle = -89
+            self.logger.debug('angle to low, set to -89')
+        elif angle > 90:
+            angle = 90
+            self.logger.debug('angle to high, set to 90')
         self.set_dutycycle(self.get_duty_cycle(angle))
 
     def set_dutycycle(self, dutycyle):
