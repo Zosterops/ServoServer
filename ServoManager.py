@@ -14,11 +14,11 @@ class Servo:
         self.gpio = gpio
         self.frequency = 50 # 50hz frequency
         self.angle_moins_90 = 250 # 250 us
-        self.angle_90 = 2300 # 2300us
+        self.angle_180 = 2300 # 2300us
 
     def get_duty_cycle(self, angle):
         angle += 90
-        return angle * self.angle_90 / 90
+        return angle * self.angle_180 / 180
 
     def move(self, angle):
         self.logger.debug('Servo %d : angle : %d' % (self.gpio, angle))
