@@ -7,10 +7,10 @@ class Servo:
     Represent a servo motor
     """
 
-    def __init__(self, gpio, dma):
+    def __init__(self, gpio):
         self.logger = logging.getLogger('Servo')
         self.logger.debug('__init__')
-        self.servo = PWM.Servo(dma_channel=dma, pulse_incr_us=1)
+        self.servo = PWM.Servo(pulse_incr_us=1)
         self.gpio = gpio
         self.frequency = 50 # 50hz frequency
         self.angle_0 = 250 # 250 us
@@ -21,6 +21,12 @@ class Servo:
 
     def move(self, angle):
         self.logger.debug('Servo %d : angle : %d' % (self.gpio, angle))
+        if angle <= 0:
+            angle = 1
+            self.logger.debug('angle to low, set to 1')
+        elif angle > 180:
+            angle = 180
+            self.logger.debug('angle to high, set to 180')
         self.servo.set_servo(self.gpio, self.get_duty_cycle(angle))
 
     def set_dutycycle(self, dutycyle):
@@ -34,11 +40,11 @@ class ServoManager:
 
     __shared_state = {}
 
-    def __init__(self, gpios=None):
+    def __init__(self, gpio_up_down=None, gpio_right_left=None):
         self.__dict__ = self.__shared_state
-        if gpios is not None:
-            self.servo_up_down = Servo(dma=gpios[0][0],gpio=gpios[0][1])
-            self.servo_right_left = Servo(dma=gpios[1][0],gpio=gpios[1][1])
+        if gpio_up_down is not None and gpio_right_left is not None:
+            self.servo_up_down = Servo(gpio=gpio_up_down)
+            self.servo_right_left = Servo(gpio=gpio_right_left)
 
     def move_up_down(self, angle):
         self.servo_up_down.move(angle)
