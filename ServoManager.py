@@ -56,6 +56,21 @@ class ServoManager:
         if gpio_up_down is not None and gpio_right_left is not None:
             self.servo_up_down = Servo(gpio=gpio_up_down)
             self.servo_right_left = Servo(gpio=gpio_right_left)
+            self.init_sequence()
+
+    def init_sequence(self):
+        import time
+        pause = 0.5
+        self.move_up_down(-90)
+        time.sleep(pause)
+        self.move_up_down(90)
+        time.sleep(pause)
+        self.move_right_left(-90)
+        time.sleep(pause)
+        self.move_right_left(90)
+        time.sleep(pause)
+        self.move_up_down(0)
+        self.move_right_left(0)
 
     def move_up_down(self, angle):
         """
