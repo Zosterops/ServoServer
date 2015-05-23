@@ -24,6 +24,9 @@ class Servo:
         self.logger.debug('Servo %d : angle : %d, duty_cycle : %d' % (self.gpio, angle, duty_cycle))
         self.servo.set_servo(self.gpio, duty_cycle)
 
+    def set_dutycycle(self, dutycyle):
+        self.logger.debug('Set duty cycle to : %d' % dutycyle)
+        self.servo.set_servo(self.gpio, dutycyle)
 
 class ServoManager:
     """
@@ -49,4 +52,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
     servo = Servo(2, 0)
     while True:
-        servo.move(input())
+        servo.set_dutycycle(input())
