@@ -13,14 +13,21 @@ class Servo:
         self.servo = PWM.Servo(pulse_incr_us=1)
         self.gpio = gpio
         self.frequency = 50 # 50hz frequency
-        self.angle_moins_90 = 250 # 250 us
+        self.angle_0 = 250 # 250 us
         self.angle_180 = 2300 # 2300us
 
     def get_duty_cycle(self, angle):
+        """
+        We received the angles between -90 and 90.
+        """
         angle += 90
         return angle * self.angle_180 / 180
 
     def move(self, angle):
+        """
+        We received the angles between -90 and 90.
+        Outbound angles are ignored
+        """
         self.logger.debug('Servo %d : angle : %d' % (self.gpio, angle))
         if angle <= -90:
             angle = -89
@@ -31,14 +38,17 @@ class Servo:
         self.set_dutycycle(self.get_duty_cycle(angle))
 
     def set_dutycycle(self, dutycyle):
+        """
+        Set the specified dutycycle to the gpio
+        """
         self.logger.debug('Servo %d : duty_cycle : %d' % (self.gpio, dutycyle))
         self.servo.set_servo(self.gpio, dutycyle)
 
 class ServoManager:
     """
     Used to manage the servos with GPIOs
+    Singleton
     """
-
     __shared_state = {}
 
     def __init__(self, gpio_up_down=None, gpio_right_left=None):
@@ -48,9 +58,15 @@ class ServoManager:
             self.servo_right_left = Servo(gpio=gpio_right_left)
 
     def move_up_down(self, angle):
+        """
+        Move the up and down motor
+        """
         self.servo_up_down.move(angle)
 
     def move_right_left(self, angle):
+        """
+        Move the right left motor
+        """
         self.servo_right_left.move(angle)
 
 
