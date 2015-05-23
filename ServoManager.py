@@ -65,11 +65,12 @@ class ServoManager:
         time.sleep(pause)
         self.move_up_down(90)
         time.sleep(pause)
+        self.move_up_down(0)
+        time.sleep(pause)
         self.move_right_left(-90)
         time.sleep(pause)
         self.move_right_left(90)
         time.sleep(pause)
-        self.move_up_down(0)
         self.move_right_left(0)
 
     def move_up_down(self, angle):
