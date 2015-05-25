@@ -42,6 +42,7 @@ class CameraManager:
         self.port = port
         self.host = host
         self.n_sender = n_sender
+        self.done = False
 
     def create_socket(self):
         self.logger.debug('create_socket')
@@ -85,6 +86,14 @@ class CameraManager:
         for i in range(self.n_sender):
             self.pool.append(ImageSender(socket, self.pool, self.lock_pool))
 
+    def stop_senders(self):
+        while self.pool:
+            with self.lock_pool:
+                processor = self.pool.pop()
+            self.logger.debug('stop thread : %s' % repr(processor))
+            processor.terminated = True
+            processor.join()
+
     def streams(self):
         while not self.done:
             with self.lock_pool:
@@ -106,6 +115,7 @@ class CameraManager:
             camera.framerate = 30
             camera.stop_preview()
             camera.capture_sequence(self.streams(), use_video_port=True)
+        self.stop_senders()
 
 if __name__ == '__main__':
     import argparse
