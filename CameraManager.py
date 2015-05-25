@@ -22,7 +22,7 @@ class ImageSender(threading.Thread):
         while not self.terminated:
             if self.event.wait(1):
                 try:
-                    print self.stream.size()
+                    print self.stream.tell()
                 finally:
                     self.stream.seek(0)
                     self.stream.truncate()
