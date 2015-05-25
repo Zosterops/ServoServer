@@ -31,7 +31,7 @@ class CameraHandler(SocketServer.BaseRequestHandler):
             camera.resolution = (640, 480)
             import time
             time.sleep(2)
-            stream = io.BytesIO()
+            stream = io.RawIOBase()
             for _ in camera.capture_continuous(stream, 'jpeg'):
                 size = stream.tell()
                 stream.seek(0)
