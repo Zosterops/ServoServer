@@ -1,75 +1,59 @@
 
 import logging
-import SocketServer
-import picamera
-import io
-
-class CameraHandler(SocketServer.BaseRequestHandler):
-    """
-    CameraHandler handle every requests made by the user
-    concerning the camera pictures
-    """
-
-    def __init__(self, request, client_address, server):
-        """
-        Construct a new 'CameraHandler' object
-        """
-        self.logger = logging.getLogger('CameraHandler')
-        self.logger.debug('__init__')
-        SocketServer.BaseRequestHandler.__init__(self, request, client_address, server)
-        return
-
-    def setup(self):
-        self.logger.debug('setup')
-
-    def handle(self):
-        """
-        Handle every request made by the user
-        """
-        self.logger.debug('handle')
-        with picamera.PiCamera() as camera:
-            camera.resolution = (640, 480)
-            import time
-            time.sleep(2)
-            stream = io.BytesIO()
-            for _ in camera.capture_continuous(stream, 'jpeg'):
-                size = stream.tell()
-                stream.seek(0)
-                stream.read()
-                stream.seek(0)
-                stream.truncate()
-                self.logger.debug('size = %d' % size)
-
-
-
-    def finish(self):
-        self.logger.debug('finish')
-
+import socket
 
 class CameraManager:
     """
     Used to manage image stream
     """
 
-    def __init__(self):
+    def __init__(self, host='0.0.0.0', port=1993):
         self.logger = logging.getLogger('CameraManager')
-        self.server = SocketServer.TCPServer(("0.0.0.0", 1993), CameraHandler)
         self.logger.debug('__init___')
+        self.port = port
+        self.host = host
+
+    def create_socket(self):
+        self.logger.debug('create_socket')
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    def bind(self):
+        self.logger.debug('bind')
+        self.socket.bind((self.host, self.port))
+
+    def listen(self, n=1):
+        self.logger.debug('listen')
+        self.socket.listen(n)
+
+    def accept(self):
+        self.logger.debug('accept')
+        return self.socket.accept()
+
+    def close(self):
+        self.logger.debug('close')
+        self.socket.close()
 
     def start(self):
-        self.logger.debug('start serving')
+        self.logger.debug('start')
+        self.create_socket()
+        self.bind()
+        self.listen()
         try:
-            self.server.serve_forever()
+            conn, addr = self.accept()
+            conn.send("salut !")
+            conn.close()
         except:
             pass
-        self.stop()
-
-    def stop(self):
-        self.logger.debug('stop serving')
-        self.server.shutdown()
+        finally:
+            self.close()
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description="CameraManager test")
+    parser.add_argument('port', type=int, default=3991, help="port in which launch the server")
+    args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
-    manager = CameraManager()
+    manager = CameraManager(port=args.port)
     manager.start()
 
