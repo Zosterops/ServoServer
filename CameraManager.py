@@ -87,6 +87,7 @@ class CameraManager:
             self.pool.append(ImageSender(socket, self.pool, self.lock_pool))
 
     def stop_senders(self):
+        self.logger.debug('stop_senders')
         while self.pool:
             with self.lock_pool:
                 processor = self.pool.pop()
@@ -115,6 +116,7 @@ class CameraManager:
             camera.framerate = 30
             camera.stop_preview()
             camera.capture_sequence(self.streams(), use_video_port=True)
+        self.done = True
         self.stop_senders()
 
 if __name__ == '__main__':
