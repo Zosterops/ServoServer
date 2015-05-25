@@ -15,7 +15,7 @@ class ImageSender(threading.Thread):
         self.terminated = False
         self.socket = socket
         self.pool = pool
-        self.lock_pool = pool
+        self.lock_pool = lock_pool
         self.start()
 
     def run(self):
@@ -79,12 +79,12 @@ class CameraManager:
         finally:
             self.close()
 
-    def create_senders(self, socket):
+    def create_senders(self, conn):
         self.logger.debug('create_senders')
         self.lock_pool = threading.Lock()
         self.pool = []
         for i in range(self.n_sender):
-            self.pool.append(ImageSender(socket, self.pool, self.lock_pool))
+            self.pool.append(ImageSender(conn, self.pool, self.lock_pool))
 
     def stop_senders(self):
         self.logger.debug('stop_senders')
@@ -110,11 +110,12 @@ class CameraManager:
                 time.sleep(0.1)
 
     def serv_flux(self, conn, addr):
-        self.create_senders(socket)
+        self.logger.debug('serv_flux')
+        self.create_senders(conn)
         with picamera.PiCamera() as camera:
-            camera.resolution(640, 480)
+            camera.resolution = (640, 480)
             camera.framerate = 30
-            camera.stop_preview()
+            camera.start_preview()
             camera.capture_sequence(self.streams(), use_video_port=True)
         self.done = True
         self.stop_senders()
