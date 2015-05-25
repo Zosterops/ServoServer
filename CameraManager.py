@@ -1,6 +1,7 @@
 
 import logging
 import socket
+import picamera
 
 class CameraManager:
     """
@@ -41,12 +42,19 @@ class CameraManager:
         self.listen()
         try:
             conn, addr = self.accept()
-            conn.send("salut !")
+            self.serv_flux(conn, addr)
             conn.close()
         except:
             pass
         finally:
             self.close()
+
+    def serv_flux(self, conn, addr):
+        with picamera.PiCamera() as camera:
+            camera.resolution(640, 480)
+            camera.framerate = 30
+            camera.stop_preview()
+            camera.capture_sequence(self.streams(), use_video_port=True)
 
 if __name__ == '__main__':
     import argparse
