@@ -5,30 +5,37 @@ import picamera
 import time
 import threading
 import io
+import struct
 
 class ImageSender(threading.Thread):
 
-    def __init__(self, socket, pool, lock_pool):
+    def __init__(self, conn, manager):
         super(ImageSender, self).__init__()
+        self.logger = logging.getLogger('ImageSender')
         self.stream = io.BytesIO()
         self.event = threading.Event()
         self.terminated = False
-        self.socket = socket
-        self.pool = pool
-        self.lock_pool = lock_pool
+        self.conn = conn
+        self.manager = manager
         self.start()
 
     def run(self):
         while not self.terminated:
             if self.event.wait(1):
                 try:
-                    print self.stream.tell()
+                    size = self.stream.tell()
+                    self.stream.seek(0)
+                    with self.manager.lock_conn:
+                        self.conn.send(struct.pack('<I', size))
+                        self.conn.send(self.stream.read())
+                except:
+                    self.manager.done = True
                 finally:
                     self.stream.seek(0)
                     self.stream.truncate()
                     self.event.clear()
-                    with self.lock_pool:
-                        self.pool.append(self)
+                    with self.manager.lock_pool:
+                        self.manager.pool.append(self)
 
 
 class CameraManager:
@@ -82,9 +89,12 @@ class CameraManager:
     def create_senders(self, conn):
         self.logger.debug('create_senders')
         self.lock_pool = threading.Lock()
+        self.lock_conn = threading.Lock()
         self.pool = []
         for i in range(self.n_sender):
-            self.pool.append(ImageSender(conn, self.pool, self.lock_pool))
+            t = ImageSender(conn, self)
+            self.logger.debug('create thread : %s' % repr(t))
+            self.pool.append(t)
 
     def stop_senders(self):
         self.logger.debug('stop_senders')
@@ -117,7 +127,6 @@ class CameraManager:
             camera.framerate = 30
             camera.start_preview()
             camera.capture_sequence(self.streams(), use_video_port=True)
-        self.done = True
         self.stop_senders()
 
 if __name__ == '__main__':
@@ -126,6 +135,6 @@ if __name__ == '__main__':
     parser.add_argument('port', type=int, default=3991, help="port in which launch the server")
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
-    manager = CameraManager(port=args.port)
+    manager = CameraManager(port=args.port, n_sender=4)
     manager.start()
 
