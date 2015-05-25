@@ -2,17 +2,46 @@
 import logging
 import socket
 import picamera
+import time
+import threading
+import io
+
+class ImageSender(threading.Thread):
+
+    def __init__(self, socket, pool, lock_pool):
+        super(ImageSender, self).__init__()
+        self.stream = io.BytesIO()
+        self.event = threading.Event()
+        self.terminated = False
+        self.socket = socket
+        self.pool = pool
+        self.lock_pool = pool
+        self.start()
+
+    def run(self):
+        while not self.terminated:
+            if self.event.wait(1):
+                try:
+                    print self.stream.size()
+                finally:
+                    self.stream.seek(0)
+                    self.stream.truncate()
+                    self.event.clear()
+                    with self.lock_pool:
+                        self.pool.append(self)
+
 
 class CameraManager:
     """
     Used to manage image stream
     """
 
-    def __init__(self, host='0.0.0.0', port=1993):
+    def __init__(self, host='0.0.0.0', port=1993, n_sender=4):
         self.logger = logging.getLogger('CameraManager')
         self.logger.debug('__init___')
         self.port = port
         self.host = host
+        self.n_sender = n_sender
 
     def create_socket(self):
         self.logger.debug('create_socket')
@@ -49,7 +78,29 @@ class CameraManager:
         finally:
             self.close()
 
+    def create_senders(self, socket):
+        self.logger.debug('create_senders')
+        self.lock_pool = threading.Lock()
+        self.pool = []
+        for i in range(self.n_sender):
+            self.pool.append(ImageSender(socket, self.pool, self.lock_pool))
+
+    def streams(self):
+        while not self.done:
+            with self.lock_pool:
+                if self.pool:
+                    processor = self.pool.pop()
+                else:
+                    processor = None
+            if processor:
+                yield processor.stream
+                processor.event.set()
+            else:
+                # when the pool is starved, wait a while for it to refill
+                time.sleep(0.1)
+
     def serv_flux(self, conn, addr):
+        self.create_senders(socket)
         with picamera.PiCamera() as camera:
             camera.resolution(640, 480)
             camera.framerate = 30
