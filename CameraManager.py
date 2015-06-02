@@ -70,6 +70,7 @@ class CameraManager:
         self.logger.debug('stop')
         if self.running is True:
             self.thread.stop()
+            self.running = False
         else:
             self.logger.debug('Camera is not running')
 
