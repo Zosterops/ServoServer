@@ -22,7 +22,7 @@ class CameraThread(threading.Thread):
         run the subprocess
         """
         self.logger.debug('run')
-        self.raspi_p = subprocess.Popen("raspivid -t 0 -h 720 -w 1080 -fps 30 -b 2000000 -o -".split(), stdout=subprocess.PIPE, shell=True)
+        self.raspi_p = subprocess.Popen("raspivid -t 0 -h 720 -w 1080 -fps 30 -b 2000000 -o -".split(), stdout=subprocess.PIPE)
         # MyComputerIsAwesome
         self.gst_p = subprocess.Popen("gst-launch-1.0 -v fdsrc fd=0 ! h264parse ! rtph264pay ! udpsink host=192.168.43.36 port=5004".split(),
                     stdin=self.raspi_p.stdout)
@@ -82,11 +82,4 @@ class CameraManager:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
     manager = CameraManager()
-    manager.start()
-    manager.start()
-
-    import time
-    time.sleep(3)
-    manager.stop()
-    manager.stop()
     manager.start()
