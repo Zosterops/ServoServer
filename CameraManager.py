@@ -78,7 +78,10 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
     manager = CameraManager(cmd="yes oui")
     manager.start()
+    manager.start()
 
     import time
     time.sleep(3)
     manager.stop()
+    manager.stop()
+    manager.start()
