@@ -49,21 +49,29 @@ class CameraManager:
             self.logger = logging.getLogger('CameraManager')
             self.logger.debug('__init__')
             self.cmd = cmd
+            self.running = False
 
     def start(self):
         """
         Start the camera
         """
         self.logger.debug('start')
-        self.thread = CameraThread(self.cmd)
-        self.thread.start()
+        if self.running is False:
+            self.thread = CameraThread(self.cmd)
+            self.thread.start()
+            self.running = True
+        else:
+            self.logger.debug('camera is already running')
 
     def stop(self):
         """
         Stop the camera
         """
         self.logger.debug('stop')
-        self.thread.stop()
+        if self.running is True:
+            self.thread.stop()
+        else:
+            self.logger.debug('Camera is not running')
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
