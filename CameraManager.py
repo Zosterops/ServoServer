@@ -22,6 +22,8 @@ class CameraThread(threading.Thread):
         run the subprocess
         """
         self.logger.debug('run')
+        self.raspi_p = subprocess.Popen("raspivid -t 0 -h 720 -w 1080 -fps 30 -b 2000000 -o -".split(" "), stdout=subprocess.PIPE)
+        self.gst_p = subprocess.Popen("gst-launch-1.0 -v fdsrc fd=0 ! h264parse ! rtph264pay ! udpsink host=MyComputerIsAwesome port=5004".split(" "), )
         self.process = subprocess.Popen(self.cmd.split(" "), stdout=subprocess.PIPE, shell=True)
         self.logger.debug('process launched, wait for end....')
         ret = self.process.wait()
@@ -43,21 +45,18 @@ class CameraManager:
 
     __shared_state = {}
 
-    def __init__(self, cmd=None):
-        self.__dict__ = self.__shared_state
-        if cmd is not None:
-            self.logger = logging.getLogger('CameraManager')
-            self.logger.debug('__init__')
-            self.cmd = cmd
-            self.running = False
+    def __init__(self):
+        self.logger = logging.getLogger('CameraManager')
+        self.logger.debug('__init__')
+        self.running = False
 
-    def start(self):
+    def start(self, cmd):
         """
         Start the camera
         """
         self.logger.debug('start')
         if self.running is False:
-            self.thread = CameraThread(self.cmd)
+            self.thread = CameraThread(cmd)
             self.thread.start()
             self.running = True
         else:

@@ -4,6 +4,7 @@ import logging
 from struct import unpack
 import SocketServer
 from ServoManager import ServoManager
+from CameraManager import CameraManager
 
 class ServoServerHandler(SocketServer.BaseRequestHandler):
     """
@@ -16,6 +17,7 @@ class ServoServerHandler(SocketServer.BaseRequestHandler):
         """
         self.logger = logging.getLogger('ServoServerHandler')
         self.logger.debug('__init__')
+        self.camera_manager = CameraManager()
         SocketServer.BaseRequestHandler.__init__(self, request, client_address, server)
         return
 
@@ -44,6 +46,11 @@ class ServoServerHandler(SocketServer.BaseRequestHandler):
                 servo_manager.move_right_left(y)
             else:
                 self.logger.debug('Movement packet doesn\'t have x and y values')
+        elif cmd.has_key("type") and cmd['type'] == "stream_state":
+            if cmd.has_key("status") and cmd['status'] is True:
+                self.camera_manager.start()
+            else:
+                self.camera_manager.stop()
         else:
             self.logger.debug('Unknown packet : %s' % repr(cmd))
 
