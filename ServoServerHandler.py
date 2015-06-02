@@ -71,3 +71,5 @@ class ServoServerHandler(SocketServer.BaseRequestHandler):
 
     def finish(self):
         self.logger.debug('finish')
+        servo_manager = ServoManager()
+        servo_manager.init_sequence()

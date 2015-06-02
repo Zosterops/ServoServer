@@ -60,7 +60,7 @@ class ServoManager:
 
     def init_sequence(self):
         import time
-        pause = 0.5
+        pause = 1
         self.move_up_down(-90)
         time.sleep(pause)
         self.move_up_down(90)
