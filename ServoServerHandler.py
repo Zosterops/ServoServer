@@ -80,3 +80,4 @@ class ServoServerHandler(SocketServer.BaseRequestHandler):
         self.logger.debug('finish')
         servo_manager = ServoManager()
         servo_manager.init_sequence()
+        self.camera_manager.stop()
