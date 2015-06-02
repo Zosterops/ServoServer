@@ -4,14 +4,23 @@ import subprocess
 import threading
 
 class CameraThread(threading.Thread):
+    """
+    Thread who is launching a subprocess
+    """
 
     def __init__(self, cmd):
+        """
+        init thread with command
+        """
         self.logger = logging.getLogger('CameraThread')
         self.logger.debug('__init__')
         self.cmd = cmd
         threading.Thread.__init__(self)
 
     def run(self):
+        """
+        run the subprocess
+        """
         self.logger.debug('run')
         self.process = subprocess.Popen(self.cmd.split(" "), stdout=subprocess.PIPE, shell=True)
         self.logger.debug('process launched, wait for end....')
@@ -19,11 +28,18 @@ class CameraThread(threading.Thread):
         self.logger.debug('return value : %d' % ret)
 
     def stop(self):
+        """
+        stop the subprocess
+        """
         self.logger.debug('stop')
         self.process.terminate()
 
 
 class CameraManager:
+    """
+    Used to manage the Camera
+    Singleton
+    """
 
     __shared_state = {}
 
@@ -35,11 +51,17 @@ class CameraManager:
             self.cmd = cmd
 
     def start(self):
+        """
+        Start the camera
+        """
         self.logger.debug('start')
         self.thread = CameraThread(self.cmd)
         self.thread.start()
 
     def stop(self):
+        """
+        Stop the camera
+        """
         self.logger.debug('stop')
         self.thread.stop()
 
