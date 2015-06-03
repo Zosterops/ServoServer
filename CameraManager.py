@@ -40,9 +40,9 @@ class CameraThread(threading.Thread):
         """
         stop the subprocess
         """
-        self.logger.debug('stop')
-        self.raspi_p.terminate()
-        self.gst_p.terminate()
+        self.logger.debug('arret')
+        self.raspi_p.kill()
+        self.gst_p.kill()
 
 
 class CameraManager:
