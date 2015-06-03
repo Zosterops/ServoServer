@@ -36,7 +36,7 @@ class CameraThread(threading.Thread):
         ret = self.gst_p.wait()
         self.logger.debug('return value gst_p : %d' % ret)
 
-    def stop(self):
+    def arret(self):
         """
         stop the subprocess
         """
@@ -77,7 +77,7 @@ class CameraManager:
         """
         self.logger.debug('stop')
         if self.running is True:
-            self.thread.stop()
+            self.thread.arret()
             self.running = False
         else:
             self.logger.debug('Camera is not running')
@@ -85,4 +85,9 @@ class CameraManager:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
     manager = CameraManager()
-    manager.start()
+    manager.start("youp")
+    import time
+    time.sleep(4)
+    manager.stop()
+    while True:
+        pass
