@@ -23,7 +23,7 @@ class CameraThread(threading.Thread):
         run the subprocess
         """
         self.logger.debug('run')
-        self.raspi_p = subprocess.Popen("cat /dev/urandom".split(), stdout=subprocess.PIPE)
+        self.raspi_p = subprocess.Popen("raspivid -t 0 -h 720 -w 1080 -fps 30 -b 2000000 -o -".split(), stdout=subprocess.PIPE)
         # MyComputerIsAwesome
         cmd = "gst-launch-1.0 -v fdsrc fd=0 ! h264parse ! rtph264pay ! udpsink host=%s port=5004" % self.ip
         self.gst_p = subprocess.Popen(cmd.split(),
@@ -41,8 +41,8 @@ class CameraThread(threading.Thread):
         stop the subprocess
         """
         self.logger.debug('arret')
-        self.raspi_p.kill()
-        self.gst_p.kill()
+        self.raspi_p.terminate()
+        self.gst_p.terminate()
 
 
 class CameraManager:
