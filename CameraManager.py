@@ -8,13 +8,14 @@ class CameraThread(threading.Thread):
     Thread who is launching a subprocess
     """
 
-    def __init__(self, cmd):
+    def __init__(self, ip):
         """
         init thread with command
         """
         self.logger = logging.getLogger('CameraThread')
         self.logger.debug('__init__')
-        self.cmd = cmd
+        self.logger.debug('client = %s' % ip)
+        self.ip = ip
         threading.Thread.__init__(self)
 
     def run(self):
@@ -24,7 +25,8 @@ class CameraThread(threading.Thread):
         self.logger.debug('run')
         self.raspi_p = subprocess.Popen("raspivid -t 0 -h 720 -w 1080 -fps 30 -b 2000000 -o -".split(), stdout=subprocess.PIPE)
         # MyComputerIsAwesome
-        self.gst_p = subprocess.Popen("gst-launch-1.0 -v fdsrc fd=0 ! h264parse ! rtph264pay ! udpsink host=192.168.43.36 port=5004".split(),
+        cmd = "gst-launch-1.0 -v fdsrc fd=0 ! h264parse ! rtph264pay ! udpsink host=%s port=5004" % self.ip
+        self.gst_p = subprocess.Popen(cmd.split(),
                     stdin=self.raspi_p.stdout)
         # self.raspi_p = subprocess.Popen("cat /dev/urandom".split(), stdout=subprocess.PIPE, shell=True)
         # self.gst_p = subprocess.Popen("grep youpiyayaya".split(), stdin=self.raspi_p.stdout)
@@ -56,13 +58,14 @@ class CameraManager:
         self.logger.debug('__init__')
         self.running = False
 
-    def start(self, cmd="osef"):
+    def start(self, ip):
         """
         Start the camera
         """
         self.logger.debug('start')
+        self.logger.debug(ip)
         if self.running is False:
-            self.thread = CameraThread(cmd)
+            self.thread = CameraThread(ip)
             self.thread.start()
             self.running = True
         else:

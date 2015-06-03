@@ -48,7 +48,7 @@ class ServoServerHandler(SocketServer.BaseRequestHandler):
                 self.logger.debug('Movement packet doesn\'t have x and y values')
         elif cmd.has_key("type") and cmd['type'] == "stream_state":
             if cmd.has_key("status") and cmd['status'] is True:
-                self.camera_manager.start()
+                self.camera_manager.start(ip=self.client_address[0])
             else:
                 self.camera_manager.stop()
         else:
