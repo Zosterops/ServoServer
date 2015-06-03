@@ -60,18 +60,16 @@ class ServoManager:
 
     def init_sequence(self):
         import time
-        pause = 1
-        self.move_up_down(-90)
-        time.sleep(pause)
+        pause = 0.7
         self.move_up_down(90)
-        time.sleep(pause)
-        self.move_up_down(0)
-        time.sleep(pause)
-        self.move_right_left(-90)
-        time.sleep(pause)
         self.move_right_left(90)
         time.sleep(pause)
+        self.move_up_down(-90)
+        self.move_right_left(-90)
+        time.sleep(pause)
+        self.move_up_down(0)
         self.move_right_left(0)
+
 
     def move_up_down(self, angle):
         """
